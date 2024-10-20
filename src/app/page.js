@@ -1,27 +1,92 @@
-import Image from "next/image";
+'use client';
 
-export default async function Home() {
-  const res = await fetch('https://fakestoreapi.com/products');
-  const products = await res.json();
+import { useEffect, useState } from 'react';
+import CategoriesPage from './categories/page';
+import Hero from './components/Hero';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css'; 
+import 'slick-carousel/slick/slick-theme.css';
+import Image from 'next/image';
+import Link from 'next/link';
+import Head from 'next/head';
+import Header from './components/Header';
+
+const HomePage = () => {
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+
+    const fetchFeaturedProducts = async () => {
+      try {
+        const res = await fetch('https://fakestoreapi.com/products?limit=8');
+        const data = await res.json();
+        setFeaturedProducts(data);
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      }
+    };
+    fetchFeaturedProducts();
+  }, []);
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    responsive: [
+      { breakpoint: 1024, settings: { slidesToShow: 3 } },
+      { breakpoint: 600, settings: { slidesToShow: 2 } },
+      { breakpoint: 480, settings: { slidesToShow: 1 } },
+    ],
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <div key={product.id} className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <Image width={100} height={100} src={product.image} alt={product.title} className="w-full h-56 object-cover" />
-            <div className="p-4">
+    <div className="max-w-7xl mx-auto px-4">
+
+    <Header title="Home | My Next.js App" />
+
+      {user && (
+        <div className="py-4">
+          <h1 className="text-2xl font-semibold">
+            Hi, {user.username} 👋
+          </h1>
+        </div>
+      )}
+
+            {/* Featured Products Section */}
+            <section className="my-8">
+        <h2 className="text-2xl font-bold mb-4">Featured Products</h2>
+        <Slider {...settings}>
+          {featuredProducts.map((product) => (
+            <Link key={product.id} href={`/products/${product.id}`}>
+            <div className="p-4 text-center">
+              <Image width={100} height={100} src={product.image} alt={product.title} className="h-40 mx-auto mb-4" />
               <h3 className="text-lg font-semibold">{product.title}</h3>
-              <p className="mt-2 text-gray-600">{product.description.substring(0, 100)}...</p>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-green-600 font-bold">${product.price}</span>
-                <span className="text-yellow-500">{'★'.repeat(Math.round(product.rating.rate))}</span>
-              </div>
-              <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500 transition-colors">View Product</button>
+              <p className="text-gray-700">${product.price}</p>
             </div>
-          </div>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </Slider>
+      </section>
+
+      {/* Categories Section */}
+      <section className="my-8">
+        <h2 className="text-2xl font-bold mb-4">Browse Categories</h2>
+        <CategoriesPage />
+      </section>
+
+      <Hero />
+
+
+
     </div>
   );
-}
+};
+
+export default HomePage;

@@ -1,10 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import Card from '../components/Card';
-import Head from 'next/head';
-import Header from '../components/Header';
 
-export default function Products() {
+export default function Hero() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState('asc');
@@ -43,8 +41,6 @@ export default function Products() {
 
       {loading ? (
         <div className="flex justify-center">
-      <Header title="All Products | My Next.js App" />
-          
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100"></div>
         </div>
       ) : (

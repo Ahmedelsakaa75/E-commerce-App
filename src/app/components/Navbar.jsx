@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MdSearch, MdLightMode, MdDarkMode } from 'react-icons/md';
-import { RiMenu3Line } from 'react-icons/ri';
+import { MdSearch, MdLightMode, MdDarkMode, MdShoppingCart } from 'react-icons/md';
+import { RiArrowDownSLine } from 'react-icons/ri';
 import ThemeSwitch from './ThemeSwitch';
 
 const Navbar = () => {
@@ -11,8 +11,19 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
-  // Fetch categories from FakeStore API
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(localStorage.getItem('user')));
+    }
+  }, []);
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -26,17 +37,36 @@ const Navbar = () => {
     fetchCategories();
   }, []);
 
-  const handleMenuToggle = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+    setUser(null);
   };
 
-  const handleDropdownToggle = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  const handleMenuToggle = () => setIsMenuOpen(!isMenuOpen);
+  const handleDropdownToggle = () => setIsDropdownOpen(!isDropdownOpen);
 
-  const handleSearchToggle = () => {
-    setIsSearchOpen(!isSearchOpen);
-  };
+  useEffect(() => {
+    if (searchQuery.length > 0) {
+      const debounceTimer = setTimeout(async () => {
+        try {
+          const response = await fetch(`https://fakestoreapi.com/products`);
+          const data = await response.json();
+          const filteredResults = data.filter((product) =>
+            product.title.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+          setSearchResults(filteredResults);
+        } catch (error) {
+          console.error('Error fetching search results:', error);
+        }
+      }, 500); 
+
+      return () => clearTimeout(debounceTimer); 
+    } else {
+      setSearchResults([]); 
+    }
+  }, [searchQuery]);
 
   return (
     <nav className="bg-surface-light dark:bg-surface-dark shadow-md">
@@ -44,7 +74,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0">
             <Link href="/">
-              <img className="h-8 w-8" src="/logo.svg" alt="Logo" />
+              <h1 className="font-bold text-2xl">Cairo Cart</h1> 
             </Link>
           </div>
 
@@ -52,8 +82,6 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <Link href="/" className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Home</Link>
             <Link href="/products" className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Products</Link>
-            <Link href="/cart" className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Cart</Link>
-            <Link href="/account" className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Account</Link>
 
             {/* Categories Dropdown */}
             <div className="relative">
@@ -62,15 +90,13 @@ const Navbar = () => {
                 className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark inline-flex items-center"
               >
                 Categories
-                <svg className="ml-2 w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                </svg>
+                <RiArrowDownSLine />
               </button>
               {isDropdownOpen && (
-                <div className="absolute mt-2 w-48 bg-surface-light dark:bg-surface-dark shadow-lg rounded-md ring-1 ring-black ring-opacity-5 z-50">
+                <div className="absolute mt-2 w-48 bg-surface-light dark:bg-surface-dark bg-opacity-80 shadow-lg rounded-md ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
                     {categories.map((category) => (
-                      <Link key={category} href={`/products?category=${category}`} className="block px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-primary-light dark:hover:bg-primary-dark">
+                      <Link key={category} href={`/categories/${category}`} className="block px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-primary-light dark:hover:bg-primary-dark">
                         {category}
                       </Link>
                     ))}
@@ -80,69 +106,58 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Dark Mode and Search Buttons */}
+          {/* Search Bar */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <MdSearch className="absolute right-2 top-2 w-5 h-5 text-gray-500" />
+            {/* Search Results */}
+            {searchResults.length > 0 && (
+              <div className="absolute mt-2 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md z-50 max-h-60 overflow-auto">
+                <ul className="py-2">
+                  {searchResults.map((product) => (
+                    <li key={product.id} className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">
+                      <Link href={`/products/${product.id}`} className="block text-text-light dark:text-text-dark">
+                        {product.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/*  Cart and Auth  */}
           <div className="flex items-center space-x-4">
-            <button onClick={handleSearchToggle} className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">
-              <MdSearch className="w-6 h-6" />
-            </button>
+            <Link href="/cart" className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">
+              <MdShoppingCart className="w-6 h-6" />
+            </Link>
 
-            {/* Dark Mode Toggle */}
+            {isLoggedIn ? (
+              <>
+                <Link href="/profile" className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">
+                  {user?.username || 'Profile'}
+                </Link>
+                <button onClick={handleLogout} className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Login</Link>
+                <Link href="/register" className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Register</Link>
+              </>
+            )}
+
+            {/* Theme Switch */}
             <ThemeSwitch />
-
-            <button className="md:hidden" onClick={handleMenuToggle}>
-              <RiMenu3Line className="w-6 h-6 text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark" />
-            </button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="py-4 space-y-1">
-              <Link href="/" className="block text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Home</Link>
-              <Link href="/products" className="block text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Products</Link>
-              <Link href="/cart" className="block text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Cart</Link>
-              <Link href="/account" className="block text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark">Account</Link>
-
-              {/* Categories Mobile Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={handleDropdownToggle}
-                  className="text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark inline-flex items-center"
-                >
-                  Categories
-                  <svg className="ml-2 w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                  </svg>
-                </button>
-                {isDropdownOpen && (
-                  <div className="absolute mt-2 w-48 bg-surface-light dark:bg-surface-dark shadow-lg rounded-md ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="py-1">
-                      {categories.map((category) => (
-                        <Link key={category} href={`/products?category=${category}`} className="block px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-primary-light dark:hover:bg-primary-dark">
-                          {category}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Search Bar */}
-        {isSearchOpen && (
-          <div className="bg-surface-light dark:bg-surface-dark border-b border-gray-200 p-4">
-            <div className="max-w-7xl mx-auto">
-              <input
-                type="text"
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark"
-                placeholder="Search for products..."
-              />
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
