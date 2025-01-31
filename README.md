@@ -1,31 +1,56 @@
-# E-commerce App
+# Modern E-Commerce Platform
 
-This is a simple e-commerce product listing page built using Next.js and the Fake Store API. The application allows users to view products, search for products dynamically, and register.
+A full-featured e-commerce application built with Next.js, featuring product browsing, wishlist management, and cart functionality.
 
 ## Features
 
-- Display a list of products fetched from the Fake Store API.
-- Dynamic product search functionality.
-- Responsive layout with Tailwind CSS.
-- User authentication (registration and login).
-- Dark and light mode theme switcher.
-- Error handling for failed API requests.
-  
-## Technologies Used
+- **Product Gallery**
+  - Browse products by categories
+  - Search functionality with real-time filtering
+  - Product cards with price, images, and quick actions
+  - Responsive grid layout with Tailwind CSS
 
-- **Next.js**: Framework for building the app.
-- **Tailwind CSS**: For styling the UI.
-- **Formik & Yup**: For form validation.
-- **Fake Store API**: For fetching products and user authentication.
-  
+- **Shopping Features**
+  - Cart management with persistent storage
+  - Wishlist system with heart icon indicators
+  - Add individual items or entire wishlist to cart
+  - Cart total calculation and checkout button
+
+- **Product Details**
+  - Dynamic routing for product pages
+  - High-resolution image display
+  - Full product descriptions and specifications
+  - Add to cart/wishlist from detail page
+
+- **User Experience**
+  - Dark/Light mode with smooth transitions
+  - Loading states and error handling
+  - Responsive design for all screen sizes
+  - Client-side navigation with Next.js
+
+- **Account Management**
+  - User registration and login
+  - Persistent cart/wishlist items
+  - Profile page with basic user info
+
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS + Headless UI
+- **State Management**: React Context API
+- **Icons**: React Icons
+- **API**: Fake Store API
+- **Form Handling**: Formik + Yup
+- **UI Components**: react-slick Carousel
+
 ## Getting Started
 
-### Running Locally
+### Prerequisites
+- Node.js v18+
+- npm v9+
 
-To run this project locally, clone the repository:
-
+### Installation
 ```bash
 git clone https://github.com/Ahmedelsakaa75/E-commerce-App.git
 cd E-commerce-App
 npm install
-npm run dev
