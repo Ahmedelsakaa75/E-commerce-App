@@ -19,7 +19,7 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto py-10">
-                  <Header title="Profile | My Next.js App" />
+                  <Header title="Profile | My Store" />
       <h1 className="text-3xl font-bold mb-6">Profile</h1>
       <div className="max-w-md mx-auto">
         <p className="mb-4">Username: {user.username}</p>

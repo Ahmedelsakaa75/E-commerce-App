@@ -2,11 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-    transition: background-color 0.3s linear, color 0.3s linear;
+@layer base {
+  body {
+    @apply bg-main-light dark:bg-main-dark text-text-light dark:text-text-dark;
+    transition: background-color 150ms ease, color 150ms ease;
   }
-  
-body {
-    transition: background-color 0.3s linear, color 0.3s linear;
-  }
-  
+}

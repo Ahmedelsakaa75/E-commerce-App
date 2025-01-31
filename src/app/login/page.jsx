@@ -52,11 +52,10 @@ const Login = () => {
 
   return (
     <div className="container mx-auto py-10 max-w-6xl">
-                  <Header title="Login | My Next.js App" />
+                  <Header title="Login | My Store" />
 
       <h1 className="text-3xl font-bold mb-6">Login</h1>
 
-      {/* Pop-up Notification */}
       {showNotification && <Notification message={notificationMessage} />}
 
       <Formik
@@ -71,7 +70,6 @@ const Login = () => {
           <Form className="max-w-md mx-auto space-y-4">
             {errors.general && <p className="text-red-600 mb-4">{errors.general}</p>}
 
-            {/* Username */}
             <div>
               <label htmlFor="username" className="block mb-2">Username</label>
               <Field
@@ -82,7 +80,6 @@ const Login = () => {
               <ErrorMessage name="username" component="p" className="text-red-600" />
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="block mb-2">Password</label>
               <Field
@@ -93,10 +90,12 @@ const Login = () => {
               <ErrorMessage name="password" component="p" className="text-red-600" />
             </div>
 
-            {/* Submit Button */}
-            <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-              {isSubmitting ? 'Logging in...' : 'Login'}
-            </button>
+            <button
+  type="submit" 
+  className="w-full bg-accent text-white py-2 rounded-lg hover:bg-opacity-90"
+>
+  {isSubmitting ? 'Processing...' : 'Login'}
+</button>
           </Form>
         )}
       </Formik>

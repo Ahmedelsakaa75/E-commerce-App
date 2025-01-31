@@ -1,27 +1,61 @@
 import Image from 'next/image';
-import React from 'react';
 import Link from 'next/link';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 const Card = ({ product }) => {
+  const { addToCart } = useCart();
+  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
+  const isInWishlist = wishlistItems.some(item => item.id === product.id);
+
+  const handleWishlist = (e) => {
+    e.preventDefault();
+    if (isInWishlist) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
+  };
+
   return (
-    <div className="flex flex-col justify-between h-full bg-gray-50 dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 rounded-lg p-4 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105">
-      <div className="flex-grow">
-        <Image
-          className="w-full h-56 object-contain mb-4 rounded-lg"
-          src={product.image}
-          alt={product.title}
-          width={100}
-          height={100}
-        />
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{product.title}</h2>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">${product.price}</p>
-      </div>
-      <Link href={`/products/${product.id}`}>
-        <button className="w-full bg-blue-600 dark:bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300">
-          View Product
+    <Link href={`/products/${product.id}`} className="group">
+      <div className="bg-main-light dark:bg-main-dark p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow relative h-full">
+        <button
+          onClick={handleWishlist}
+          className="absolute top-2 right-2 p-2 text-accent hover:text-red-500 z-10"
+        >
+          {isInWishlist ? <FaHeart size={20} /> : <FaRegHeart size={20} />}
         </button>
-      </Link>
-    </div>
+
+        <div className="relative h-48 mb-4">
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            className="object-contain p-4"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        </div>
+        
+        <h3 className="font-semibold text-text-light dark:text-text-dark mb-2 line-clamp-2">
+          {product.title}
+        </h3>
+        <p className="text-text-light dark:text-text-dark mb-4">
+          ${product.price}
+        </p>
+        
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            addToCart(product);
+          }}
+          className="w-full py-2 bg-accent text-white rounded-md hover:bg-opacity-90 transition-colors"
+        >
+          Add to Cart
+        </button>
+      </div>
+    </Link>
   );
 };
 

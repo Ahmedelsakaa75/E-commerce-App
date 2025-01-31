@@ -49,7 +49,7 @@ const HomePage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4">
 
-    <Header title="Home | My Next.js App" />
+    <Header title="Home | My Store" />
 
       {user && (
         <div className="py-4">
@@ -59,7 +59,6 @@ const HomePage = () => {
         </div>
       )}
 
-            {/* Featured Products Section */}
             <section className="my-8">
         <h2 className="text-2xl font-bold mb-4">Featured Products</h2>
         <Slider {...settings}>
@@ -75,7 +74,6 @@ const HomePage = () => {
         </Slider>
       </section>
 
-      {/* Categories Section */}
       <section className="my-8">
         <h2 className="text-2xl font-bold mb-4">Browse Categories</h2>
         <CategoriesPage />
